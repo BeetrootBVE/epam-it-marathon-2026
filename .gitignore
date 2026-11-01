@@ -1,0 +1,47 @@
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+*.code-workspace
+
+# OS
+.DS_Store
+._*
+Thumbs.db
+
+# Node
+node_modules/
+
+# Local env
+.env
+.env.local
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+
+# Python environment
+.venv/
+__pycache__/
+*.pyc
+
+# .NET build
+bin/
+obj/
+
+# Frontend build
+dist/
+
+# AWS Syndicate local configuration
+.syndicate-config-*/
+.aws/
+
+# Sensitive files
+.env.*
+*.pem
+*.key
