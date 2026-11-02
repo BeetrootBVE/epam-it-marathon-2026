@@ -1,0 +1,140 @@
+@use 'app/shared/styles/abstracts/colors' as color;
+
+:host {
+    display: block;
+    min-height: 100vh;
+    background: color.$neutral-100;
+    color: color.$neutral-900;
+}
+
+.page {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 40px;
+}
+
+.page-header {
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid color.$green-150;
+}
+
+.heading {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 600;
+    }
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: color.$neutral-200;
+    font-size: 12px;
+}
+
+.reservation-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    margin-top: 18px;
+    font-size: 14px;
+
+    span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    img {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.participants {
+    display: grid;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+        min-width: 0;
+    }
+}
+
+.order-summary {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 2px solid color.$green-150;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h2 {
+        margin: 0;
+        font-size: 24px;
+    }
+
+    .total {
+        color: color.$green-800;
+        font-size: 26px;
+    }
+}
+
+.submit-button {
+    width: 100%;
+    padding: 16px;
+    border: 0;
+    border-radius: 8px;
+    background: color.$green-gradient;
+    color: color.$neutral-0;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: 3px solid color.$green-300;
+        outline-offset: 3px;
+    }
+
+    &:disabled {
+        background: color.$neutral-200;
+        color: color.$neutral-600;
+        cursor: not-allowed;
+    }
+}
+
+@media (max-width: 600px) {
+    .page {
+        padding: 20px 12px 32px;
+    }
+
+    .heading h1 {
+        font-size: 24px;
+    }
+
+    .reservation-info {
+        gap: 10px 14px;
+    }
+
+    .total-row h2,
+    .total-row .total {
+        font-size: 22px;
+    }
+}
