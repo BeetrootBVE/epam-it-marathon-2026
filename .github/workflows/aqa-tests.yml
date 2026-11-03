@@ -1,0 +1,82 @@
+name: AQA Level 1 (Playwright .NET)
+
+on:
+  push:
+    paths:
+      - 'aqa/**'
+      - '.github/workflows/aqa-tests.yml'
+  pull_request:
+    paths:
+      - 'aqa/**'
+      - '.github/workflows/aqa-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  aqa:
+    name: API + minimal UI smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AQA_BASE_URL: ${{ vars.AQA_BASE_URL }}
+      AQA_UI_URL: http://127.0.0.1:4200
+      AQA_TABLE_ID: ${{ vars.AQA_TABLE_ID }}
+      AQA_DISH_ID: ${{ vars.AQA_DISH_ID }}
+      AQA_OWNER_EMAIL: ${{ secrets.AQA_OWNER_EMAIL }}
+      AQA_OWNER_PASSWORD: ${{ secrets.AQA_OWNER_PASSWORD }}
+      AQA_OTHER_EMAIL: ${{ secrets.AQA_OTHER_EMAIL }}
+      AQA_OTHER_PASSWORD: ${{ secrets.AQA_OTHER_PASSWORD }}
+      AQA_WAITER_EMAIL: ${{ secrets.AQA_WAITER_EMAIL }}
+      AQA_WAITER_PASSWORD: ${{ secrets.AQA_WAITER_PASSWORD }}
+      NG_CLI_ANALYTICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.16.0'
+          cache: npm
+          cache-dependency-path: frontend/restaurant-frontend-app/package-lock.json
+      - name: Restore and build AQA framework
+        run: dotnet build aqa/restaurant-aqa/RestaurantAqa.csproj --configuration Release
+      - name: Install Playwright browser
+        run: pwsh aqa/restaurant-aqa/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+      - name: Install original frontend dependencies
+        working-directory: frontend/restaurant-frontend-app
+        run: npm ci
+      - name: Start original frontend on localhost
+        working-directory: frontend/restaurant-frontend-app
+        run: |
+          nohup npm start -- --host 127.0.0.1 --port 4200 > /tmp/aqa-angular.log 2>&1 &
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4200/menu > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          echo "Frontend did not start. Inspect Angular startup logs."
+          tail -50 /tmp/aqa-angular.log
+          exit 1
+      - name: Execute L1 tests (do not hide failing assertions)
+        id: tests
+        continue-on-error: true
+        run: |
+          dotnet test aqa/restaurant-aqa/RestaurantAqa.csproj --no-build --configuration Release \
+            --filter "TestCategory=L1" \
+            --logger "trx;LogFileName=aqa-level1.trx" \
+            --results-directory aqa/restaurant-aqa/TestResults
+      - name: Upload test report and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aqa-level1-report
+          path: |
+            aqa/restaurant-aqa/TestResults/
+            **/TestResults/artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Fail job if tests failed
+        if: always() && steps.tests.outcome != 'success'
+        run: exit 1
