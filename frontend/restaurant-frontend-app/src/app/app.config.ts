@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withHashLocation } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
@@ -12,7 +12,7 @@ import { API_BASE_URL } from './shared/config/api-base-url.token';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    environment.useHashRouting ? provideRouter(routes, withHashLocation()) : provideRouter(routes),
     provideHttpClient(withXhr(), withInterceptors([tokenInterceptor])),
     provideDaterangepickerLocale({
       separator: ' - ',

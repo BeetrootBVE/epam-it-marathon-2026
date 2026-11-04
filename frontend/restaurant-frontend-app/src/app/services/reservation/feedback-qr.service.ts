@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { API_BASE_URL } from '@app/shared/config/api-base-url.token';
@@ -7,7 +8,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class FeedbackQrService {
-  private readonly frontendBaseUrl = window.location.origin + '/main';
+  private readonly location = inject(Location);
   private readonly http: HttpClient = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
@@ -23,9 +24,8 @@ export class FeedbackQrService {
       waiterName,
       isNewFeedback: String(isNewFeedback),
     });
-    const url = `${this.frontendBaseUrl}?${params.toString()}`;
-
-    return url;
+    const path = this.location.prepareExternalUrl('/main?' + params.toString());
+    return new URL(path, document.baseURI).href;
   }
 
   getAnonymousFeedbackToken(reservationId: string): Observable<string> {

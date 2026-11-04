@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -28,6 +28,7 @@ const MIN_GUESTS_FOR_INVITE = 2;
 })
 export class ReservationInviteModalComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly toastService = inject(ToastService);
   private readonly guestInviteService = inject(GuestInviteService);
   private readonly destroyRef = inject(DestroyRef);
@@ -49,7 +50,11 @@ export class ReservationInviteModalComponent implements OnInit {
 
   readonly inviteLink = computed(() => {
     const token = this.inviteToken();
-    return token ? `${window.location.origin}/join/${token}` : null;
+    if (!token) {
+      return null;
+    }
+    const path = this.router.serializeUrl(this.router.createUrlTree(['/join', token]));
+    return new URL(this.location.prepareExternalUrl(path), document.baseURI).href;
   });
 
   readonly invitePlaceholder = computed(() => {

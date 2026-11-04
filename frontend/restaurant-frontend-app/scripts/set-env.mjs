@@ -37,9 +37,11 @@ if (!/^https?:\/\//.test(backendUrl)) {
   process.exit(1);
 }
 
+const useHashRouting = process.env.GITHUB_PAGES_BUILD === 'true';
 const contents = `// GENERATED FILE — do not edit, do not commit.
 // Produced by scripts/set-env.mjs from the BACKEND_URL environment variable.
 export const environment = {
+  useHashRouting: ${useHashRouting},
   backendUrl: '${backendUrl.replace(/\/$/, '')}',
 };
 `;
